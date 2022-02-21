@@ -1,5 +1,6 @@
 # AxiSEM 3D repo
 
+
 ### Overview:
 
 Author: Will Eaton, Princeton University 2021
@@ -10,6 +11,11 @@ Contact: weaton@princeton.edu
 
 ### Short description:
 A small repo containing scripts to inject sphere's into 3D cartesian models for use in AxiSEM3D. I can write a better set of documentation if required, just email me! 
+
+<p align="center">
+  <img src="./example_figs/Example2_blob.png" width="500">
+</p>
+
 
 ### Usage: 
 This isn't a package or compiled executable, simply a series of Python3 functions that can be used. There are two classes accompanied by a number of functions: 
