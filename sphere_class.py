@@ -37,9 +37,9 @@ class sphere():
         # Initialise centre:
         self.n_centre = np.array([0, 0, 0])
 
-        self.n_centre[0] = model.unpadded_n[0] * centre[0] // model.x_length
-        self.n_centre[1] = model.unpadded_n[1] * centre[1] // model.y_length
-        self.n_centre[2] = model.unpadded_n[2] * centre[2] // model.z_length
+        self.n_centre[0] = int(model.unpadded_n[0] * (centre[0] - model.x_lim[0])  // model.x_length)
+        self.n_centre[1] = int(model.unpadded_n[1] * (centre[1] - model.y_lim[0])  // model.y_length)
+        self.n_centre[2] = int(model.unpadded_n[2] * (centre[2] - model.z_lim[0])  // model.z_length)
 
         if print_conf.upper() == "Y":
             print("Centre of sphere set at", centre, "with normalised indices", self.n_centre)
