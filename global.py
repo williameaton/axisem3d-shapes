@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 from gen_sphere import gen_sphere
 from model_class import model
 from add_sphere import addSphere
@@ -17,38 +19,62 @@ def latlon_to_cartesian(lat, long, depth, e2, a):
     Z = ((1 - e2) * N - depth) * np.sin(lat)
     return X, Y, Z, N
 
-def cartesian_to_ellipsoidal(x,y,z, e2, iterations=50, z_def="depth"):
+def cartesian_to_ellipsoidal(x,y,z, e2, iterations=20, z_def="depth"):
 
     # Now need to convert each coordinate back to geographic:
-    p = ((x ** 2 + y ** 2) ** 0.5)
+    p = ((x**2) + (y**2))** 0.5
     lat_i = np.arctan(z / ((1 - e2) * p))
 
 
     for i in range(iterations):
-        N = a / (1 - e2 * (np.sin(lat_i) ** 2)) ** 0.5
+        N = a / ((1 - e2 * (np.sin(lat_i) ** 2)) ** 0.5)
         depth = p / np.cos(lat_i) - N
         lat_i = np.arctan(z / (p * (1 - (e2 * (N / (N + depth))))))
+
+        if i%20==0:
+            print(f"{i}/{iterations}")
 
     # This is now our lat, long, depth coordinates for our blob
     depth = -depth  # Flip sign so depth is positive
     if z_def=="radius":
         print("Using radius for coordinates not depth")
         depth = N-depth
-    longitude = np.rad2deg(np.arctan(y / x))
+
+    # initialise
+    longitude = np.zeros(len(x))
+
+    # x positive, y positive quadrant
+    m = np.logical_and(x>0, y>0)
+    longitude[m] = np.rad2deg(np.arctan(y[m] / x[m]))
+
+    # x positive, y negative quadrant
+    m2 = np.logical_and(x>0, y<0)
+    longitude[m2] = np.rad2deg(np.arctan(y[m2] / x[m2]))
+
+    # x negative, y positive quadrant ( 90 to 180 degrees)
+    m = np.logical_and(x<0, y>0)
+    longitude[m] = np.rad2deg(np.arctan( np.abs(y[m]) / np.abs(x[m]))    +   np.pi/2 )
+
+    # x negative, y negative quadrant ( -90 to -180 degrees)
+    m = np.logical_and(x<0, y<0)
+    longitude[m] = np.rad2deg(np.arctan(np.abs(y[m]) / np.abs(x[m])) - np.pi )
+
+    # Still need to worry about values when x or y = 0
     latitude = np.rad2deg(lat_i)
+
 
     return depth, latitude, longitude
 
 
 
 # SPHERE PARAMETERS:
-sph_depth          =  1000000  # m
-sph_lat            =  0     # degrees
-sph_long           =  0     # degrees
-sph_radius         =  200000   # mm
-padding            =  1.2
-oversat            =  12
-cart_gridspace     =  130
+sph_depth          =  200000  # m
+sph_lat            =  90.0       # degrees
+sph_long           =  0        # degrees
+sph_radius         =  50000     # m
+padding            =  1.5
+oversat            =  10
+cart_gridspace     =  145
 
 property_type  = "REF1D"
 vp             = -0.2
@@ -56,7 +82,7 @@ vs             = -0.2
 rho            = -0.2
 
 # DOMAIN PARAMETERS
-freq           =  0.01   # [Hz]
+freq           =  0.1    # [Hz]
 min_vel        =  5000   # [m/s]
 epw            =  4      # 3 elements per wavelength
 
@@ -65,14 +91,14 @@ e2             =  0
 a              =  6371000.0
 
 
-
 # Convert to cartesian
-X, Y, Z, N = latlon_to_cartesian(sph_lat, sph_long, sph_depth, e2, a)
+# Use 0 longitude and then add it later
+X, Y, Z, N = latlon_to_cartesian(sph_lat, 0, sph_depth, e2, a)
 
 # Convert centre to xyz:
 # Model parameters
 p = sph_radius*padding
-# Model dimensions
+# Cartesian model dimensions
 x = np.array([-p, p]) + X
 y = np.array([-p, p]) + Y
 z = np.array([-p, p]) + Z
@@ -95,8 +121,21 @@ x = XC.flatten()
 y = YC.flatten()
 z = ZC.flatten()
 
-h, latitude, longitude = cartesian_to_ellipsoidal(x, y, z, e2, z_def='radius')
+
+"""fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+v = m.bm_vp.flatten()
+ax.scatter(x[v!=0], y[v!=0], z[v!=0], c=v[v!=0] )"""
+
+print("Converting back to ellipsoidal")
+h, latitude, longitude = cartesian_to_ellipsoidal(x, y, z, e2, z_def='depth')
 print("Converted back to ellipsoidal coords.")
+
+v = m.bm_vp.flatten()
+
+"""fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.scatter(latitude[v!=0], longitude[v!=0], h[v!=0], c=v[v!=0])"""
 
 
 # Now need to re-sample the data at even spacing in lat-lon-depth space:
@@ -138,16 +177,23 @@ interp_rho = scipy.interpolate.griddata(points=(latitude, longitude, h), values=
                                  xi = (K.flatten(), L.flatten(), J.flatten()), method='nearest', rescale=True)
 print("     resampled rho")
 
+"""v = interp_vp
+ax.scatter(K.flatten()[v!=0], L.flatten()[v!=0], J.flatten()[v!=0], c=v[v!=0])
+plt.show()"""
+
+
+
 # Reshape into 3D array for NETCDF
-vp  = interp_vp.reshape(len(grid_lat), len(grid_lon), len(grid_depth))   # May need to change this order
-vs  = interp_vs.reshape(len(grid_lat), len(grid_lon), len(grid_depth))   # May need to change this order
-rho = interp_rho.reshape(len(grid_lat), len(grid_lon), len(grid_depth)) # May need to change this order
+vp  = interp_vp.reshape(len(grid_lat), len(grid_lon), len(grid_depth))
+vs  = interp_vs.reshape(len(grid_lat), len(grid_lon), len(grid_depth))
+rho = interp_rho.reshape(len(grid_lat), len(grid_lon), len(grid_depth))
 
 
 print("exporting to NetCDF4")
 
 out_dir  = f"../../AxiSEM3D_2020/build/input/"
-filename = f"sphere_{sph_depth}d_{sph_lat}lat_{sph_long}lon_{sph_radius}rad.nc"
+#filename = f"sphere_{sph_depth}d_{sph_lat}lat_{sph_long}lon_{sph_radius}rad.nc"
+filename = f"polar.nc"
 fullname = f"{out_dir}/{filename}"
 
 f = nc.Dataset(fullname, 'w', format='NETCDF4')
@@ -174,7 +220,7 @@ v_vs = f.createVariable('vs', 'f4', ('lat', 'lon', 'depth',))
 
 # Assigning values to the variables:
 lats[:] = grid_lat
-lons[:] = grid_lon
+lons[:] = grid_lon + sph_long + 180
 depths[:] = grid_depth
 v_rho[:, :, :] = rho
 v_vp[:, :, :] = vp

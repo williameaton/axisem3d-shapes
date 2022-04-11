@@ -1,5 +1,5 @@
 import numpy as np
-from sphere_class import sphere
+from sphere_class import Sphere
 
 def slice_sphere(sph, model, print_conf='N'):
     # Extract the sphere array

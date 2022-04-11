@@ -1,13 +1,13 @@
 import numpy as np
 
-from sphere_class import sphere
+from sphere_class import Sphere
 from slice_sphere import slice_sphere
 from inject import inject_sphere
 
 def addSphere(sph, model, print_time='n'):
 
     # Extract sph_input:
-    sph_input = sphere(sph.sphere, sph.vp, sph.vs, sph.rho, sph.radius)
+    sph_input = Sphere(sph.sphere, sph.vp, sph.vs, sph.rho, sph.radius)
     # update sph_input centre:
     sph_input.set_centre(sph.centre, model)
 
