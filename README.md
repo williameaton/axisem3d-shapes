@@ -1,32 +1,29 @@
-# AxiSEM-3D-shapes
+# AxiSEM-3D_shapes
 
 
-### Overview:
 
-Author: Will Eaton, Princeton University 2021
 
-Last modified: April 11th 2022
-
+Author: Will Eaton, Princeton University 2021 \
+Last modified: April 12th 2022 \
 Contact: weaton@princeton.edu 
 
-### Short description:
-A small repo containing scripts to inject sphere's into 3D cartesian models for use in AxiSEM3D. I can write a better set of documentation if required, just email me! 
+Short description: \
+A small repo containing scripts to inject shapes such as ellipsoids, slabs and cylinders into 3D cartesian models for use in AxiSEM3D.
 
+## Overview: 
+Full documentation can be found ... . If you have any questions please open an issue or contact me via email.
 
+Three classes provide the functionality of this package: 
+ * ```Model``` is used to create a background cartesian grid into which shapes can be added. This can represent the entire domain you are simulating, or a subset of it. It holds, among other things, three arrays ```VP```, ```VS``` and ```RHO``` which eventually stored in NetCDF files for AxiSEM-3D to read. 
+ * ```Shape``` is an abstract base class. Subclasses of this (e.g. ```Ellipsoid``` or ```Cylinder```) can be instantiated and injected into the model arrays (e.g. ```VP```) using an ```Injector``` object
+ * ```Injector``` are instantiated by passing in a ```Model``` object, and are used to inject ```Shape``` objects into the ```Model``` arrays. 
 
-### Usage: 
-This isn't a package or compiled executable, simply a series of Python3 functions that can be used. There are two classes accompanied by a number of functions: 
+Shapes can be created with dimensions and orientation specified by the user. Originally these codes were just written for injecting spheres. As such, the position of shapes is located by a central point of the shape, rather than an edge. I may add more flexibility for this in the future.
 
-1) Model - the model class creates and stores 3D arrays for density, Vp and Vs. It is defined using a series of parameters like the minimum frequency and elements per wavelength 
-2) Sphere - a sphere object essentially holds details like the radius of the sphere and the internal vp/vs/rho values of that sphere. Spheres may then be added to the model using the addSphere() function. 
+I recommend viewing your generated models in Paraview to check everything has worked, before running simulations. 
 
-Two examples are provided which demonstrate two cases of usage: 
-1) The reason I developed this code was to produce 3D models which are filled with blobs that are separated by some distance (mean free path). This is example 1 and taken pretty much from the script I always used to generate these. Some of the functions supplied here like spaced_spheres() are written for this purpose only. 
-2) Example two is a bit more general and demonstrates that you can have whatever 3D model that you want and inject a sphere (or as many as you want) into that model. I have written a Jupyter notebook for this one but not Example 1. 
+## Still to do:
+* Complete testing of all scripts 
+* Global (spherical) wrapper for use in non-cartesian Axisem-3D.
+* Parallel grid searches for shape construction? 
 
-#### Spheres: 
-The function gen_sphere() does the actual bulk of the sphere generation. I note here that a second function called gen_sphere_gaussian() is also supplied. The difference between these is that gen_sphere() produces homogenous spheres of a certain vp, vs, rho, where as the gaussian version has its vp, vs and rho taper towards 0 in some outer region of the sphere. In this case the original radius of the sphere is all homogenous + some additional shell of tapered material from r_original to r. This was created in the hope that it might avoid some instabilities caused in AxiSEM3D when the perturbations of the sphere were strong. I could have written these in a single combined function but in all honestly I couldn't be bothered, especially as I don't use the gaussian version. However, note that the lines in which the gaussian values of Vp, Vs, Rho are implimented (lines 39-44) could be edited to make whatever kind of blob you want - i.e. one with some internal structure. 
-
-
-## Current limitations: 
-The major limitation is that presently the spheres are injected as follows: the 'sphere' is a 3D array with non-zero values in certain elements. On injection, the non-zero values of this array are set as the values of the relevant model elements. Hence, any elements inside the sphere that have a value of 0 (e.g. if Vs = 0 this would be a fluid section of the sphere) will not be injected and the model will retain its background value. If that becomes an issue for someone then I'll try and update it. 
