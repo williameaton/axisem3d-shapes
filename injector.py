@@ -101,7 +101,6 @@ class Injector():
 
         for i in range(sc.shape[0]):
             # Add sphere to model:
-            print(i)
             self.addObj(obj, location=sc[i, :], overwrite=overwrite)
 
         print("Added", sc.shape[0], "spheres to model")

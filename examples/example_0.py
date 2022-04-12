@@ -1,7 +1,7 @@
 # Imports
 import numpy as np
 from model_class import model
-from sphere_class import Sphere
+from sphere import Sphere
 from injector import Injector
 
 

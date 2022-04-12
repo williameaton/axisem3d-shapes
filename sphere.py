@@ -15,18 +15,8 @@ class Sphere(Object):
         # the radius is changed
         self.set_radius(dim)
 
+        print("Generated sphere.")
 
-    def set_loc(self, centre):
-        self.centre = centre
-        # Initialise centre:
-        self.n_centre = np.array([0, 0, 0])
-
-        self.n_centre[0] = int(self.m.unpadded_n[0] * (centre[0] - self.m.x_lim[0])  // self.m.x_length)
-        self.n_centre[1] = int(self.m.unpadded_n[1] * (centre[1] - self.m.y_lim[0])  // self.m.y_length)
-        self.n_centre[2] = int(self.m.unpadded_n[2] * (centre[2] - self.m.z_lim[0])  // self.m.z_length)
-
-        #if print_conf.upper() == "Y":
-        #    print("Centre of sphere set at", centre, "with normalised indices", self.n_centre)
 
 
     def gen_obj(self):
@@ -54,19 +44,6 @@ class Sphere(Object):
 
         # This loop gives us the positive octet - now need to mirror for all other octets:
         self.obj = np.lib.pad(sph, ((x_loop, 0), (y_loop, 0), (z_loop, 0)), 'reflect')
-
-
-    def _reset_sa_centre(self):
-        # Calculate the index within the sphere array of the centre point of that array
-        self.sa_centre = np.array([0, 0, 0])
-        for i in range(3):
-            self.sa_centre[i] = np.floor(np.asarray(self.obj.shape)[i] / 2)
-
-        self.sa_centre_original = copy(self.sa_centre)
-
-
-    def _update_sph_centre_index(self, new_index):
-        self.sa_centre = new_index
 
 
     def set_radius(self, radius):
