@@ -1,21 +1,11 @@
 import numpy as np
 from shape import Object
-from copy import copy
 
 class Sphere(Object):
     def __init__(self, model, vp, vs, rho, dim, loc=None):
         # Set the Vp, Vs Rho and location
+        self.shape_name = 'sphere'
         super().__init__(model, vp, vs, rho, dim, loc)
-
-        # These parameters should be given by the location variable - Location should be x, y, z, radius:
-        self.n_centre = np.array([0,0,0])
-
-        # Setting radius - also generates model and updates centre indices of 3D array:
-        # Note that these extra bits are within the set_radius function as they need to be recalculated any time
-        # the radius is changed
-        self.set_radius(dim)
-
-        print("Generated sphere.")
 
 
 
@@ -28,7 +18,6 @@ class Sphere(Object):
         # Create spare array that holds sphere info for duplicate spheres
         # This will store values of '1' or '0' for whether the element is within the sphere radius
         sph = np.zeros((int(x_loop+1), int(y_loop+1), int(z_loop+1)))
-
 
         # Calculating the valid array elements for a circle in the positive x,y,z octet
         # Loop over all dimensions:
@@ -46,7 +35,8 @@ class Sphere(Object):
         self.obj = np.lib.pad(sph, ((x_loop, 0), (y_loop, 0), (z_loop, 0)), 'reflect')
 
 
-    def set_radius(self, radius):
+
+    def set_dimensions(self, radius):
         if type(radius) == float or type(radius) == int or len(radius) == 1:
             self.radius = radius
         else:

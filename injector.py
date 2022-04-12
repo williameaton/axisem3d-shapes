@@ -93,11 +93,11 @@ class Injector():
 
 
 
-    def spaced_obj(self, obj, mfl, overwrite=False):
+    def spaced_obj(self, obj, mfl,  x_lim=None, y_lim=None, z_lim=None, overwrite=False):
 
 
         # Create an array holding the location of sphere centres:
-        sc = self._centre_create(mfl)
+        sc = self._centre_create(mfl, x_lim, y_lim, z_lim)
 
         for i in range(sc.shape[0]):
             # Add sphere to model:
@@ -107,18 +107,34 @@ class Injector():
 
 
 
-    def _centre_create(self, mfp):
-        X, Y, Z = np.mgrid[self.m.x_lim[0]:self.m.x_lim[1] + 0.1:mfp, self.m.y_lim[0]:self.m.y_lim[1] + 0.1:mfp,
-                  self.m.z_lim[0]:self.m.z_lim[1] + 0.1:mfp]
+    def _centre_create(self, mfp, x_lim, y_lim, z_lim):
+
+        if len(mfp) == 1:
+            mfpx = mfpy = mfpz = mfp
+        elif len(mfp) == 3:
+            mfpx = mfp[0]
+            mfpy = mfp[1]
+            mfpz = mfp[2]
+
+
+        if x_lim == None:
+            x_lim = self.m.x_lim
+        if y_lim == None:
+            y_lim = self.m.y_lim
+        if z_lim == None:
+            z_lim = self.m.z_lim
+
+        X, Y, Z = np.mgrid[x_lim[0]:x_lim[1] + 0.1:mfpx, y_lim[0]:y_lim[1] + 0.1:mfpy,
+                  z_lim[0]:z_lim[1] + 0.1:mfpz]
 
         # Centre in x and y:
         x_centre_max = X[-1, 0, 0]
         y_centre_max = Y[0, -1, 0]
         z_centre_max = Z[0, 0, -1]
 
-        x_add = (self.m.x_lim[1] - x_centre_max) / 2
-        y_add = (self.m.y_lim[1] - y_centre_max) / 2
-        z_add = (self.m.z_lim[1] - z_centre_max) / 2
+        x_add = (x_lim[1] - x_centre_max) / 2
+        y_add = (y_lim[1] - y_centre_max) / 2
+        z_add = (z_lim[1] - z_centre_max) / 2
 
         X += x_add
         Y += y_add
