@@ -3,8 +3,26 @@ import numpy as np
 from copy import copy
 
 class Object(ABC):
+    """Abstract base class that can not be instantiated."""
     @abstractmethod
     def __init__(self, model, vp, vs, rho, dim, loc=None):
+        """
+        Constructor that acts as template. Can never be directly called.
+
+        :param model: The instance of :class:`~model.Model` object shape is injected into.
+        :type  model: :class:`~model.Model`
+        :param vp:    Homogenous p-wave velocity for cylinder.
+        :type vp:   float
+        :param vs: Homogenous s-wave velocity for cylinder.
+        :type vs:   float
+        :param rho: Homogenous density for cylinder.
+        :type rho: float
+        :param dim: Dimensions of the cylinder. These must be given in the following order: [h, rad, theta, phi, expand_int] where h is the length of the cylinder, rad is the radius of the cylinder, theta and phi are rotation angles away from the major axis and expand_int is an integer value with which to scale the grid in which the shape is searched for. See notes on expand_int below.
+        :type dim: 5-element list or numpy array
+        :param loc: [x,y,z] of centre of cylinder.
+        :type loc: 3-element list or numpy array. Defaults to None and can be updated later using ```set_loc()```.
+        """
+
         # General:
         self.dim = np.array(dim)
         self.obj = None
@@ -31,21 +49,41 @@ class Object(ABC):
 
 
 
-    @abstractmethod
-    def gen_obj(self):
-        pass
-
     # Some generic updating functions:
     def update_vp(self, new_vp):
+        """
+        Updates Vp value.
+
+        :param new_vp: New Vp value.
+        :type new_vp: float
+        """
         self.vp = new_vp
 
     def update_vs(self, new_vs):
+        """
+        Updates Vs value.
+
+        :param new_vs: New Vs value.
+        :type new_vs: float
+        """
         self.vs = new_vs
 
     def update_rho(self, new_rho):
+        """
+        Updates density value.
+
+        :param new_rho: New density value.
+        :type new_rho: float
+        """
         self.rho = new_rho
 
     def set_loc(self, centre):
+        """
+        Set location of centre of object.
+
+        :param centre: Centre [x, y, z]
+        :type centre: 3-element array/list
+        """
         self.centre = centre
         # Initialise centre:
         self.n_centre = np.array([0, 0, 0])
@@ -76,9 +114,9 @@ class Object(ABC):
 
 
 
-    def gen_obj(self):
+    def _gen_obj(self):
         # Calculate the number of iterations based on radius and element size:
-        x_loop, y_loop, z_loop = self.get_iter_no()
+        x_loop, y_loop, z_loop = self._get_iter_no()
 
 
         # Create spare array that holds sphere info for duplicate spheres

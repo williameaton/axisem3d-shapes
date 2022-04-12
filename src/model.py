@@ -7,6 +7,7 @@ class Model(object):
     def __init__(self, x_lim, y_lim, z_lim, elements_per_wavelength, dominant_freq, min_velocity, oversaturation=1):
         """
         Class which creates a number of 3D arrays that hold the Vp, Vs and density values in x,y,z space. The x,y,z, space can be the same size, or a subset of your simulation domain. Note that it can also be larger than the domain specified in the AxiSEM-3D simulation but anything outside of the AxiSEM-3D domain is not incorporated and AxiSEM-3D will NOT produce an error to warn you.
+
         :param x_lim: 1D numpy array with 2 elements: [x_min, x_max] for the domain of interest.
         :type x_lim: 1D Numpy array.
         :param y_lim: 1D numpy array with 2 elements: [y_min, y_max]
@@ -74,6 +75,7 @@ class Model(object):
     def writeNetCDF(self, filename):
         """
         Writes 3D arrays for velocity and density to a .nc file for inclusion in AxiSEM-3D simulation.
+
         :param filename: Output filename. Note that the suffix '.nc' must be included.
         :type filename: Str
         :return: Outputs .nc file.
@@ -114,6 +116,7 @@ class Model(object):
     def set_bm_rho(self, bm_rho):
         """
         Update the background model for density
+
         :param bm_rho: 3D array to replace current array
         :type bm_rho: 3D numpy array
         :returns: None.
@@ -123,6 +126,7 @@ class Model(object):
     def set_bm_vp(self, bm_vp):
         """
         Update the background model for P-wave velocity
+
         :param bm_vp: 3D array to replace current array
         :type bm_vp: 3D numpy array
         :returns: None.
@@ -132,6 +136,7 @@ class Model(object):
     def set_bm_vs(self, bm_vs):
         """
         Update the background model for S-wave velocity
+
         :param bm_vs: 3D array to replace current array
         :type bm_vs: 3D numpy array
         :returns: None.

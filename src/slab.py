@@ -28,12 +28,12 @@ class Slab(Object):
         else:
             raise ValueError("Dim must have 6 entries: 3 length scales, theta, phi and expand_int (see manual).")
 
-        self.gen_obj()
+        self._gen_obj()
         self._reset_sa_centre()
 
 
 
-    def get_iter_no(self):
+    def _get_iter_no(self):
         #x_loop = int(self.lengths[0] // self.m.dx)  * self.expand_int
         #y_loop = int(self.lengths[1]  // self.m.dy) * self.expand_int
         #z_loop = int(self.lengths[2]  // self.m.dz) * self.expand_int

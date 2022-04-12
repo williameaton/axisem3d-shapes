@@ -3,13 +3,28 @@ from object import Object
 
 class Sphere(Object):
     def __init__(self, model, vp, vs, rho, dim, loc=None):
-        # Set the Vp, Vs Rho and location
+        """
+        Constructor for sphere object.
+
+        :param model: The instance of :class:`~model.Model` object shape is injected into.
+        :type  model: :class:`~model.Model`
+        :param vp:    Homogenous p-wave velocity for cylinder.
+        :type vp:   float
+        :param vs: Homogenous s-wave velocity for cylinder.
+        :type vs:   float
+        :param rho: Homogenous density for cylinder.
+        :type rho: float
+        :param dim: Radius of sphere.
+        :type dim: float
+        :param loc: [x,y,z] of centre of cylinder.
+        :type loc: 3-element list or numpy array
+        """
         self.shape_name = 'sphere'
         super().__init__(model, vp, vs, rho, dim, loc)
 
 
 
-    def gen_obj(self):
+    def _gen_obj(self):
         # Calculate the number of iterations based on radius and element size:
         x_loop = int(self.radius // self.m.dx)
         y_loop = int(self.radius // self.m.dy)
@@ -42,5 +57,5 @@ class Sphere(Object):
         else:
             raise ValueError("Dim/radius must have dimensions of 1 (sphere)")
 
-        self.gen_obj()
+        self._gen_obj()
         self._reset_sa_centre()

@@ -1,10 +1,10 @@
 Model class
 ===============
+
 .. automodule:: model
    :members:
    :special-members:
    :private-members:
-
 
 
 Notes on model parameters
