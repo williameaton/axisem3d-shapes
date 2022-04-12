@@ -8,7 +8,7 @@
 
 
 import numpy as np
-from model_class import model
+from model import Model
 from gen_sphere import gen_sphere
 from write_NetCDF import writeNetCDF
 from add_sphere import addSphere
@@ -29,7 +29,7 @@ epw = 3         # 3 elements per wavelength - pretty high res.
 # YOU COULD ALTERNATIVELY HAVE SOME 3D MODEL CREATED. IN THIS CASE YOU WOULD PROBABLY STILL WANT TO MAKE AN INSTANCE
 # OF THIS MODEL CLASS AND THEN JUST SET THE model.set_bm_rho() etc... Note that the other parameters like the number of
 # elements wont adapt to this update (unless you edit the functions which should be trivial) so be careful with that.
-m = model(x,y,z, epw, freq, min_vel, oversaturation=1)
+m = Model(x, y, z, epw, freq, min_vel, oversaturation=1)
 
 # Lets take our initial background model for vp:
 vp_array = m.bm_vp

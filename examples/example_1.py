@@ -1,6 +1,6 @@
 # Imports
 import numpy as np
-from model_class import model
+from model import Model
 from sphere_class import Sphere
 from spaced_spheres import spaced_spheres
 
@@ -19,7 +19,7 @@ epw = 3         # 3 elements per wavelength - pretty high res.
 # Create model class - generates a 3D array of the correct size/epw
 # Oversaturation can be used to increase the epw above what is necessary based on epw/freq/min velocity
 # Obviously this makes a larger array and hence a greater netcdf file (which axisem sometimes struggles with)
-m = model(x,y, z, epw, freq, min_vel, oversaturation=1)
+m = Model(x, y, z, epw, freq, min_vel, oversaturation=1)
 
 
 # Define perturbations:

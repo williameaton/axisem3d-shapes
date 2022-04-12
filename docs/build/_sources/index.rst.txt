@@ -3,8 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to AxiSEM-3D_shapes's documentation!
-============================================
+AxiSEM-3D_shapes
+=================
+
+I am still writing this documentation sorry!!!
 
 .. toctree::
    :maxdepth: 4

@@ -24,6 +24,14 @@ Cylinder
    :private-members:
 
 
+Ellipsoid
+---------
+.. automodule:: ellipsoid
+   :members:
+   :special-members:
+   :private-members:
+
+
 Sphere
 ---------
 .. automodule:: sphere
