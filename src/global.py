@@ -1,8 +1,6 @@
 import matplotlib.pyplot as plt
 
-from gen_sphere import gen_sphere
 from model import Model
-from add_sphere import addSphere
 import scipy
 import numpy as np
 from scipy.interpolate import griddata as gd
@@ -61,7 +59,6 @@ def cartesian_to_ellipsoidal(x,y,z, e2, iterations=20, z_def="depth"):
 
     # Still need to worry about values when x or y = 0
     latitude = np.rad2deg(lat_i)
-
 
     return depth, latitude, longitude
 
