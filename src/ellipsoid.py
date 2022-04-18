@@ -46,7 +46,11 @@ class Ellipsoid(Object):
         :type dimensions:  float/int or 6-element array/list
         """
         if type(dimensions) == float or type(dimensions) == int or len(dimensions) == 1:
-            self.radius = dimensions
+            self.radius = [dimensions, dimensions, dimensions]
+            self.theta = 0
+            self.phi = 0
+            self.expand_int = int(1)
+
         elif len(np.array(dimensions))==6:
             self.dim = dimensions
 
@@ -59,12 +63,5 @@ class Ellipsoid(Object):
 
         self._gen_obj()
         self._reset_sa_centre()
-
-
-    def _get_iter_no(self):
-        x_loop = int(self.radius[0] // self.m.dx) * self.expand_int
-        y_loop = int(self.radius[1]  // self.m.dy) * self.expand_int
-        z_loop = int(self.radius[2]  // self.m.dz) * self.expand_int
-        return x_loop, y_loop, z_loop
 
 

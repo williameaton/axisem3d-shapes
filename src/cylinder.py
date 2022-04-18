@@ -43,7 +43,6 @@ class Cylinder(Object):
     def set_dimensions(self, dimensions):
         """
         Set dimensions for cylinder.
-
         :param dimensions: 5-element array/list. These must be given in the following order: [h, rad, theta, phi, expand_int] where h is the length of the cylinder, rad is the radius of the cylinder, theta and phi are rotation angles away from the major axis and expand_int is an integer value with which to scale the grid in which the shape is searched for. See notes on expand_int below.
         """
         if len(np.array(dimensions))==5:
@@ -56,35 +55,55 @@ class Cylinder(Object):
         else:
             raise ValueError("5 values required: h, rad, theta, phi, expand_int")
 
-        self._gen_obj()                    # Regenerate object
+        self._gen_obj()                   # Regenerate object
         self._reset_sa_centre()           # Update centre of cylinder
 
 
     def _get_iter_no(self):
         # THIS NEEDS CLEANING UP
-        if self.maxis == 'X':
-            x_loop = int(self.h // self.m.dx) * self.expand_int
-            y_loop = int(self.rad // self.m.dy) * self.expand_int
-            z_loop = int(self.rad // self.m.dz) * self.expand_int
-            self._hind = 0
-            self._aind1 = 1
-            self._aind2 = 2
-        elif self.maxis =='Y':
-            x_loop = int(self.rad // self.m.dx) * self.expand_int
-            y_loop = int(self.h // self.m.dy) * self.expand_int
-            z_loop = int(self.rad // self.m.dz) * self.expand_int
-            self._hind = 1
-            self._aind1 = 0
-            self._aind2 = 2
-        elif self.maxis == 'Z':
-            x_loop = int(self.rad // self.m.dx) * self.expand_int
-            y_loop = int(self.rad // self.m.dy) * self.expand_int
-            z_loop = int(self.h // self.m.dz) * self.expand_int
-            self._hind = 2
-            self._aind1 = 0
-            self._aind2 = 1
-        else:
-            raise ValueError("major_axis must be X, Y or Z")
+        metric = self._get_metric()
+
+        x,y,z = self._set_major_axes()
+
+        x_loop = int(x * self.expand_int // (metric*self.m.dx))
+        y_loop = int(y * self.expand_int // (metric*self.m.dy))
+        z_loop = int(z * self.expand_int // self.m.dz)
+
+
         return x_loop, y_loop, z_loop
 
 
+    def _set_major_axes(self):
+        x = self.rad
+        y = self.rad
+        z = self.rad
+
+        if self.maxis == 'X':
+            print("Major axis: X")
+            if self.m.type == "SPHERICAL":
+                self._hind = 2
+                self._aind2 = 0
+            else:
+                self._hind = 0
+                self._aind2 = 2
+            self._aind1 = 1
+            x = self.h
+        elif self.maxis == 'Y':
+            print("Major axis: Y")
+            self._aind1 = 0
+            self._hind = 1
+            self._aind2 = 2
+            y = self.h
+        elif self.maxis == 'Z':
+            print("Major axis: Z")
+            if self.m.type == "SPHERICAL":
+                self._aind1 = 2
+                self._hind = 0
+            else:
+                self._aind1 = 0
+                self._hind = 2
+            self._aind2 = 1
+            z = self.h
+        else:
+            raise ValueError("major_axis must be X, Y or Z")
+        return x, y, z

@@ -31,14 +31,3 @@ class Slab(Object):
         self._gen_obj()
         self._reset_sa_centre()
 
-
-
-    def _get_iter_no(self):
-        #x_loop = int(self.lengths[0] // self.m.dx)  * self.expand_int
-        #y_loop = int(self.lengths[1]  // self.m.dy) * self.expand_int
-        #z_loop = int(self.lengths[2]  // self.m.dz) * self.expand_int
-        max_len = np.amax(self.lengths)
-        loop = int(max_len // self.m.dx)  * self.expand_int
-
-
-        return loop, loop, loop

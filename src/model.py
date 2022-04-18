@@ -1,13 +1,15 @@
 import math
 import numpy as np
 import netCDF4 as nc
+from gen_scripts import latlon_to_cartesian
 
 class Model(object):
 
-    def __init__(self, x_lim, y_lim, z_lim, elements_per_wavelength, dominant_freq, min_velocity, oversaturation=1):
+    def __init__(self, type, x_lim, y_lim, z_lim, elements_per_wavelength, dominant_freq, min_velocity, oversaturation=1, a=None):
         """
         Class which creates a number of 3D arrays that hold the Vp, Vs and density values in x,y,z space. The x,y,z, space can be the same size, or a subset of your simulation domain. Note that it can also be larger than the domain specified in the AxiSEM-3D simulation but anything outside of the AxiSEM-3D domain is not incorporated and AxiSEM-3D will NOT produce an error to warn you.
-
+        :param type: 'Cartesian' or 'Spherical'
+        :type type: "str"
         :param x_lim: 1D numpy array with 2 elements: [x_min, x_max] for the domain of interest.
         :type x_lim: 1D Numpy array.
         :param y_lim: 1D numpy array with 2 elements: [y_min, y_max]
@@ -25,6 +27,7 @@ class Model(object):
         :returns: Model object.
         """
 
+        self.type = type.upper()
         self.x_lim = x_lim
         self.y_lim = y_lim
         self.z_lim = z_lim
@@ -32,23 +35,21 @@ class Model(object):
         self.freq = dominant_freq
         self.min_velocity = min_velocity
 
+
+        # Radius of spherical domains must be set:
+        if self.type == "SPHERICAL":
+            if a == None:
+                raise ValueError("ERROR: Sphere radius (a) must be defined so that z_lim (depths) have context.")
+            else:
+                self.a = a
+
+
         # Calculate min wavelength from frequency and min velocity
         self.min_wavelength = min_velocity/dominant_freq
 
-        # Calculate the number of elements in each dimension based on domain size, min wavelength and elements per wavelength
-        self.nx = oversaturation*math.ceil((x_lim[1] - x_lim[0])*self.epw /self.min_wavelength)
-        self.ny = oversaturation*math.ceil((y_lim[1] - y_lim[0])*self.epw /self.min_wavelength)
-        self.nz = oversaturation*math.ceil((z_lim[1] - z_lim[0])*self.epw /self.min_wavelength)
+        # Set number of elements:
+        self._set_numel(oversaturation)
 
-        # For global:
-        # Ensure that nx, ny, nz are odd
-        if self.nx%2==0:
-            self.nx += 1
-        if self.ny % 2 == 0:
-            self.ny += 1
-        if self.nz % 2 == 0:
-            self.nz += 1
-        
         # Some details on the original 3D model (homogenous in this case)
         self.padding = np.array([0, 0, 0])
         self.unpadded_n = np.array([self.nx, self.ny, self.nz])
@@ -70,6 +71,8 @@ class Model(object):
         self.bm_rho = np.zeros((self.nx, self.ny, self.nz))
         self.bm_vp  = np.zeros((self.nx, self.ny, self.nz))
         self.bm_vs  = np.zeros((self.nx, self.ny, self.nz))
+
+
 
 
     def writeNetCDF(self, filename):
@@ -142,3 +145,26 @@ class Model(object):
         :returns: None.
         """
         self.bm_rho = bm_vs
+
+
+    def _set_numel(self, oversaturation):
+        if self.type.upper() =="SPHERICAL":
+            x,y,z,n = latlon_to_cartesian(lat=self.x_lim, long=self.y_lim, depth=self.z_lim, e2=0, a=self.a)
+            self.nx = np.abs(oversaturation * math.ceil((x[1] - x[0]) * self.epw / self.min_wavelength))
+            self.ny = np.abs(oversaturation * math.ceil((y[1] - y[0]) * self.epw / self.min_wavelength))
+            self.nz = np.abs(oversaturation * math.ceil((z[1] - z[0]) * self.epw / self.min_wavelength))
+
+        elif self.type.upper() =="CARTESIAN":
+            self.nx = oversaturation*math.ceil((self.x_lim[1] - self.x_lim[0])*self.epw /self.min_wavelength)
+            self.ny = oversaturation*math.ceil((self.y_lim[1] - self.y_lim[0])*self.epw /self.min_wavelength)
+            self.nz = oversaturation*math.ceil((self.z_lim[1] - self.z_lim[0])*self.epw /self.min_wavelength)
+        else:
+            raise ValueError("model variable 'type' must be 'cartesian' or 'spherical'. ")
+
+        # Ensure that nx, ny, nz are odd
+        if self.nx % 2 == 0:
+            self.nx += 1
+        if self.ny % 2 == 0:
+            self.ny += 1
+        if self.nz % 2 == 0:
+            self.nz += 1
