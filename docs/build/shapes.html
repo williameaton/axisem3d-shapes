@@ -48,6 +48,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-object">Object class</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#concrete-subclasses-class">Concrete subclasses class</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#module-cylinder">Cylinder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-ellipsoid">Ellipsoid</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-sphere">Sphere</a></li>
 </ul>
 </li>
@@ -92,15 +93,73 @@ are listed below. Note that while the constructor format is the same for each of
 <dl class="py class">
 <dt class="sig sig-object py" id="object.Object">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">object.</span></span><span class="sig-name descname"><span class="pre">Object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#object.Object" title="Permalink to this definition"></a></dt>
-<dd><dl class="py method">
+<dd><p>Abstract base class that can not be instantiated.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="object.Object.__init__">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#object.Object.__init__" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Constructor that acts as template. Can never be directly called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code>) – The instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> object shape is injected into.</p></li>
+<li><p><strong>vp</strong> (<em>float</em>) – Homogenous p-wave velocity for cylinder.</p></li>
+<li><p><strong>vs</strong> (<em>float</em>) – Homogenous s-wave velocity for cylinder.</p></li>
+<li><p><strong>rho</strong> (<em>float</em>) – Homogenous density for cylinder.</p></li>
+<li><p><strong>dim</strong> (<em>5-element list</em><em> or </em><em>numpy array</em>) – Dimensions of the cylinder. These must be given in the following order: [h, rad, theta, phi, expand_int] where h is the length of the cylinder, rad is the radius of the cylinder, theta and phi are rotation angles away from the major axis and expand_int is an integer value with which to scale the grid in which the shape is searched for. See notes on expand_int below.</p></li>
+<li><p><strong>loc</strong> (3-element list or numpy array. Defaults to None and can be updated later using <code class="docutils literal notranslate"><span class="pre">`set_loc()`</span></code>.) – [x,y,z] of centre of cylinder.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="object.Object.__weakref__">
 <span class="sig-name descname"><span class="pre">__weakref__</span></span><a class="headerlink" href="#object.Object.__weakref__" title="Permalink to this definition"></a></dt>
 <dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="object.Object.set_loc">
+<span class="sig-name descname"><span class="pre">set_loc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">centre</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#object.Object.set_loc" title="Permalink to this definition"></a></dt>
+<dd><p>Set location of centre of object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>centre</strong> (<em>3-element array/list</em>) – Centre [x, y, z]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="object.Object.update_rho">
+<span class="sig-name descname"><span class="pre">update_rho</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_rho</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#object.Object.update_rho" title="Permalink to this definition"></a></dt>
+<dd><p>Updates density value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_rho</strong> (<em>float</em>) – New density value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="object.Object.update_vp">
+<span class="sig-name descname"><span class="pre">update_vp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_vp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#object.Object.update_vp" title="Permalink to this definition"></a></dt>
+<dd><p>Updates Vp value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_vp</strong> (<em>float</em>) – New Vp value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="object.Object.update_vs">
+<span class="sig-name descname"><span class="pre">update_vs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_vs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#object.Object.update_vs" title="Permalink to this definition"></a></dt>
+<dd><p>Updates Vs value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_vs</strong> (<em>float</em>) – New Vs value.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -131,6 +190,81 @@ are listed below. Note that while the constructor format is the same for each of
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="cylinder.Cylinder._in_shape_condition">
+<span class="sig-name descname"><span class="pre">_in_shape_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rot_coords</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cylinder.Cylinder._in_shape_condition" title="Permalink to this definition"></a></dt>
+<dd><p>Checks if coordinates are within cylinder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rot_coords</strong> (<em>Numpy array</em><em> or </em><em>list</em>) – Rotated coordinates to be checked</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cylinder.Cylinder.set_dimensions">
+<span class="sig-name descname"><span class="pre">set_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cylinder.Cylinder.set_dimensions" title="Permalink to this definition"></a></dt>
+<dd><p>Set dimensions for cylinder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dimensions</strong> – 5-element array/list. These must be given in the following order: [h, rad, theta, phi, expand_int] where h is the length of the cylinder, rad is the radius of the cylinder, theta and phi are rotation angles away from the major axis and expand_int is an integer value with which to scale the grid in which the shape is searched for. See notes on expand_int below.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ellipsoid">
+<span id="ellipsoid"></span><h3>Ellipsoid<a class="headerlink" href="#module-ellipsoid" title="Permalink to this headline"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="ellipsoid.Ellipsoid">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ellipsoid.</span></span><span class="sig-name descname"><span class="pre">Ellipsoid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ellipsoid.Ellipsoid" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="ellipsoid.Ellipsoid.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ellipsoid.Ellipsoid.__init__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code>) – The instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> object shape is injected into.</p></li>
+<li><p><strong>vp</strong> (<em>float</em>) – Homogenous p-wave velocity for ellipsoid.</p></li>
+<li><p><strong>vs</strong> (<em>float</em>) – Homogenous s-wave velocity for ellipsoid.</p></li>
+<li><p><strong>rho</strong> (<em>float</em>) – Homogenous density for ellipsoid.</p></li>
+<li><p><strong>dim</strong> (<em>single value</em><em>, or </em><em>6-element list/array</em>) – Dimensions of the ellipsoid. If single value then no rotation and all radii are equal (sphere). If 6 elements, these must be given in the following order: [rad_x, rad_y, rad_z, theta, phi, expand_int] where the first 3 elements are the radii in each direction, theta and phi are rotation angles away from the x and z aces and expand_int is an integer value with which to scale the grid in which the shape is searched for. See notes on expand_int below.</p></li>
+<li><p><strong>loc</strong> (<em>3-element list</em><em> or </em><em>numpy array</em>) – [x,y,z] of centre of ellipsoid.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ellipsoid.Ellipsoid._in_shape_condition">
+<span class="sig-name descname"><span class="pre">_in_shape_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rot_coords</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ellipsoid.Ellipsoid._in_shape_condition" title="Permalink to this definition"></a></dt>
+<dd><p>Checks if coordinates are within ellipsoid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rot_coords</strong> (<em>Numpy array</em><em> or </em><em>list</em>) – Rotated coordinates to be checked</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ellipsoid.Ellipsoid.set_dimensions">
+<span class="sig-name descname"><span class="pre">set_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ellipsoid.Ellipsoid.set_dimensions" title="Permalink to this definition"></a></dt>
+<dd><p>Set dimensions for ellipsoid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dimensions</strong> (<em>float/int</em><em> or </em><em>6-element array/list</em>) – Either single value or 6-element array/list. See constructor for details.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -142,7 +276,20 @@ are listed below. Note that while the constructor format is the same for each of
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="sphere.Sphere.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sphere.Sphere.__init__" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Constructor for sphere object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code>) – The instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> object shape is injected into.</p></li>
+<li><p><strong>vp</strong> (<em>float</em>) – Homogenous p-wave velocity for cylinder.</p></li>
+<li><p><strong>vs</strong> (<em>float</em>) – Homogenous s-wave velocity for cylinder.</p></li>
+<li><p><strong>rho</strong> (<em>float</em>) – Homogenous density for cylinder.</p></li>
+<li><p><strong>dim</strong> (<em>float</em>) – Radius of sphere.</p></li>
+<li><p><strong>loc</strong> (<em>3-element list</em><em> or </em><em>numpy array</em>) – [x,y,z] of centre of cylinder.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

@@ -1,6 +1,6 @@
 # Imports
 import numpy as np
-from model_class import model
+from model import Model
 from sphere import Sphere
 from injector import Injector
 
@@ -23,7 +23,7 @@ sphere_rad_wavelengths = 6
 mfp = 41.5
 
 
-m = model(x,y, z, epw, freq, min_vel, oversaturation=1)
+m = Model(x, y, z, epw, freq, min_vel, oversaturation=1)
 sph = Sphere(model=m, rho=rho_ptb, vp=vp_ptb, vs=vs_ptb, dim=sphere_rad_wavelengths*m.min_wavelength)
 inj = Injector(m)
 
