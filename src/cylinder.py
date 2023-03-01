@@ -3,7 +3,7 @@ from object import Object
 
 
 class Cylinder(Object):
-    def __init__(self, model, vp, vs, rho, dim, loc=None, major_axis='X'):
+    def __init__(self, model, vp, vs, rho, dim, loc=None, major_axis='X', random_mag=0):
         """
         :param model: The instance of :class:`~model.Model` object shape is injected into.
         :type  model: :class:`~model.Model`
@@ -24,7 +24,7 @@ class Cylinder(Object):
         # Set the Vp, Vs Rho and location
         self.shape_name = "cylinder"
         self.maxis = major_axis.upper()
-        super().__init__(model, vp, vs, rho, dim, loc)
+        super().__init__(model, vp, vs, rho, dim, loc, random_mag=random_mag)
 
     def _in_shape_condition(self, rot_coords):
         """
@@ -54,6 +54,11 @@ class Cylinder(Object):
             self.expand_int = int(self.dim[4])
         else:
             raise ValueError("5 values required: h, rad, theta, phi, expand_int")
+
+         #Set std axis as normal to sphere
+        if self.m.type == "SPHERICAL":
+            self.theta += np.deg2rad(self.loc[0])
+            self.phi -= np.deg2rad(self.loc[1])
 
         self._gen_obj()                   # Regenerate object
         self._reset_sa_centre()           # Update centre of cylinder

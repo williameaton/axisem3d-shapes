@@ -1,0 +1,113 @@
+# Generate an AxiSEM mesh.
+mesh_type: AxiSEM
+
+# The most important parameters.
+basic:
+    # Model Name for predefined models or filename for external model
+    # file.
+    model: "prem_iso"
+
+    # The desired dominant period of the mesh.
+    period: 10.0
+
+
+# Advanced parameters for more control.
+advanced:
+    # Number of elements per wavelength. Used to calculate element
+    # sizes to satisfy the desired dominant period.
+    elements_per_wavelength: 2.0
+
+    # Courant Number used to estimate dt.
+    courant_number: 0.6
+
+    # Model parameters to put into the mesh, defaults to the
+    # parametrization used by the background model.
+    model_parameters: []
+
+    # Account for lesser accuracy of GJI integration at the axis by
+    # shrinking the elements
+    axial_shrinking: 1.0
+
+    # How to represent the velocity model on the mesh. element_nodes:
+    # values are stored on each node of each element, allows
+    # discontinuities and (bi/tri)linear variations, but produces
+    # large files. elements: one value per element, allows
+    # discontinuities but the model will be piecewise constant. nodes:
+    # one value per node, enforces a continuous model, using mean at
+    # values on discontinuities. Choices: [element_nodes, elements,
+    # nodes]
+    velocity_model_representation: "element_nodes"
+
+    # Spline order used for model interpolation in case of layered
+    # models. Ignored for PREM like polynomial models.
+    model_spline_order: 3
+
+    # If true, the final mesh will be compressed with gzip compression
+    # level 2. Compression is for the most part only interesting for
+    # constant values and the compression level does matter much in
+    # that case.
+    compression: True
+
+
+# Parameters for the memory variable approximation of attenuation.
+attenuation:
+    # The number of standard linear solids used.
+    number_of_linear_solids: 5
+
+    # Minimum and maximum frequencies in the attenuation band. If
+    # either is not set, it will be determined automatically. Will be
+    # overwritten by 'auto_band'.
+    frequencies: [0.001, 1.0]
+
+    # Reference frequency for power law Q = Q_0 * (f / f_0)^alpha,
+    # where Q_0 is taken from background model [Hz].
+    power_law_reference_frequency: 1.0
+
+    # Exponent alpha for power law Q = Q_0 * (f / f_0)^alpha.
+    power_law_alpha: 0.0
+
+    # Automatically determine attenuation band [f_min, f_max]. Will
+    # overwrite any given frequencies.
+    auto_band: False
+
+
+# Parameters for spherical meshes.
+spherical:
+    # Minimum radius in km.
+    min_radius: 0.0
+
+    # Ellipticity of the planet (WGS84: 0.0033528106647474805, GRS80:
+    # 0.003352810681182319, MARS: 0.00589)
+    ellipticity: 0.0
+
+    # Add gravitational acceleration to the mesh.
+    gravity: False
+
+
+# Parameters for 2D circular chunks.
+chunk2D:
+    # Maximum colatitude of the mesh from the center.
+    max_colatitude: 180.0
+
+
+# Parameters for refinement of the meshes.
+refinement:
+    # The mesh refinement style. Choices: [doubling, tripling]
+    refinement_style: "doubling"
+
+    # criterion (vertical oversamping factor BEFORE the refinement)
+    # for moving refinement layers downwards to avoid small timesteps
+    # caused by refinement layers. Smaller values = more aggressive,
+    # needs to be > 1.
+    hmax_refinement: 1.5
+
+    # Top down approach means minimizing number of elements at the
+    # surface at the cost of more elements at the bottom (default). If
+    # the option refinement_bottom_up is set, the bottom up approach
+    # is used instead, that is minimizing number of elements at the
+    # bottom at the cost of more elements at the surface. Which one is
+    # more efficient depends on the velocity model and refinement
+    # style.
+    refinement_bottom_up: False
+
+

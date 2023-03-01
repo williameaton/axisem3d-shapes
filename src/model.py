@@ -3,6 +3,7 @@ import numpy as np
 import netCDF4 as nc
 from gen_scripts import latlon_to_cartesian
 
+
 class Model(object):
 
     def __init__(self, type, x_lim, y_lim, z_lim, elements_per_wavelength, dominant_freq, min_velocity, oversaturation=1, a=None):
@@ -23,7 +24,7 @@ class Model(object):
         :param min_velocity:  Minimum velocity for mesh. Controls resolution of 3D models. See notes below.
         :type min_velocity: float
         :param oversaturation: Scaling for mesh resolution. E.g. a value of 2 doubles the array resolution relative to the 1D mesh. See notes below.
-        :type oversaturation: int
+        :type oversaturation: int/float or array of 3 ints for x/y/z lat/lon/depth
         :returns: Model object.
         """
 
@@ -75,7 +76,7 @@ class Model(object):
 
 
 
-    def writeNetCDF(self, filename):
+    def writeNetCDF(self, filename, paraview=False, add_longitude=0):
         """
         Writes 3D arrays for velocity and density to a .nc file for inclusion in AxiSEM-3D simulation.
 
@@ -83,36 +84,92 @@ class Model(object):
         :type filename: Str
         :return: Outputs .nc file.
         """
+        if self.type == "CARTESIAN":
+            print("Writing cartesian model...")
+            f = nc.Dataset(filename, 'w', format='NETCDF4')
 
-        f = nc.Dataset(filename, 'w', format='NETCDF4')
-        
-        # Create dimension arrays
-        x_array = np.linspace(-self.x_lim[1]/2, self.x_lim[1]/2, self.nx)
-        y_array = np.linspace(-self.y_lim[1]/2, self.y_lim[1]/2, self.ny)
-        z_array = np.linspace(-self.z_lim[0], self.z_lim[1], self.nz)
-        
-        # Create the dimensions:
-        x_dim = f.createDimension('x_dim', self.nx)
-        y_dim = f.createDimension('y_dim', self.ny)
-        z_dim = f.createDimension('z_dim', self.nz)
-        
-        # Creating the variables:
-        x   = f.createVariable('x', 'f4', ('x_dim',))
-        y   = f.createVariable('y', 'f4', ('y_dim',))
-        z   = f.createVariable('z', 'f4', ('z_dim',))
-        v_rho = f.createVariable('rho', 'f4', ('x_dim', 'y_dim', 'z_dim',))
-        v_vp  = f.createVariable('vp', 'f4', ('x_dim', 'y_dim', 'z_dim',))
-        v_vs  = f.createVariable('vs', 'f4', ('x_dim', 'y_dim', 'z_dim',))
-        
-        # Assigning values to the variables:
-        x[:] = x_array
-        y[:] = y_array
-        z[:] = z_array
-        v_rho[:,:,:] = self.bm_rho
-        v_vp[:,:,:]  =  self.bm_vp
-        v_vs[:,:,:]  =  self.bm_vs
-        print('Data written to file ', filename)
-        f.close()
+            # Create dimension arrays
+            x_array = np.linspace(-self.x_lim[1], self.x_lim[1], self.nx)
+            y_array = np.linspace(-self.y_lim[1], self.y_lim[1], self.ny)
+            z_array = np.linspace(-self.z_lim[0], self.z_lim[1], self.nz)
+
+            # Create the dimensions:
+            x_dim = f.createDimension('x_dim', self.nx)
+            y_dim = f.createDimension('y_dim', self.ny)
+            z_dim = f.createDimension('z_dim', self.nz)
+
+            # Creating the variables:
+            x   = f.createVariable('x', 'f4', ('x_dim',))
+            y   = f.createVariable('y', 'f4', ('y_dim',))
+            z   = f.createVariable('z', 'f4', ('z_dim',))
+            v_rho = f.createVariable('rho', 'f4', ('x_dim', 'y_dim', 'z_dim',))
+            v_vp  = f.createVariable('vp', 'f4', ('x_dim', 'y_dim', 'z_dim',))
+            v_vs  = f.createVariable('vs', 'f4', ('x_dim', 'y_dim', 'z_dim',))
+
+            # Assigning values to the variables:
+            x[:] = x_array
+            y[:] = y_array
+            z[:] = z_array
+            v_rho[:,:,:] = self.bm_rho
+            v_vp[:,:,:]  =  self.bm_vp
+            v_vs[:,:,:]  =  self.bm_vs
+            print('Data written to file ', filename)
+            f.close()
+        elif self.type == "SPHERICAL":
+            print("Writing spherical model...")
+            grid_lat = np.linspace(self.x_lim[0], self.x_lim[1], self.nx)
+            grid_lon = np.linspace(self.y_lim[0], self.y_lim[1], self.ny)
+            grid_depth = np.linspace(self.z_lim[0], self.z_lim[1], self.nz)
+
+            f = nc.Dataset(filename, 'w', format='NETCDF4')
+            # Create dimension arrays
+            # We now create the dimensions:
+            lat = f.createDimension('lat', self.nx)
+            lon = f.createDimension('lon', self.ny)
+            depth = f.createDimension('depth', self.nz)
+
+            # Creating the variables:
+            lats = f.createVariable('lat', 'f4', ('lat',))
+            lats.units = 'degrees_north'
+            lats.long_name = 'latitude'
+
+            lons = f.createVariable('lon', 'f4', ('lon',))
+            lons.units = 'degrees_east'
+            lons.long_name = 'longitude'
+
+            z = f.createVariable('depth', 'f4', ('depth',))
+            z.units = 'meters'
+
+            v_rho = f.createVariable('rho', 'f4', ('lat', 'lon', 'depth',))
+            v_vp = f.createVariable('vp', 'f4', ('lat', 'lon', 'depth',))
+            v_vs = f.createVariable('vs', 'f4', ('lat', 'lon', 'depth',))
+
+            # Assigning values to the variables:
+            lats[:] = grid_lat
+            lons[:] = grid_lon + add_longitude
+            if paraview == True:
+                print("PARAVIEW FLAG = TRUE: USE MODEL FOR VISUALS BUT NOT SIMULATION")
+                z[:] = self.a - grid_depth
+            elif paraview == False:
+                print("PARAVIEW FLAG = FALSE: MODEL OKAY FOR SIMULATION")
+                z[:] = grid_depth
+            else:
+                raise ValueError("paraview flag must be True or False")
+
+            v_rho[:, :, :] = self.bm_rho
+            v_vp[:, :, :] = self.bm_vp
+            v_vs[:, :, :] = self.bm_vs
+            print('Data written to file ', filename)
+
+            if self.type == "SPHERICAL" and paraview == False:
+                self._print_inparam_model_script(filename)
+            f.close()
+
+
+
+
+
+
 
 
     # Functions for updating 
@@ -148,11 +205,33 @@ class Model(object):
 
 
     def _set_numel(self, oversaturation):
+
+        # sort oversaturation - can be an integer or array of length three
+        if type(oversaturation) == int or type(oversaturation) == float:
+            oversat_x = oversaturation
+            oversat_y = oversaturation
+            oversat_z = oversaturation
+
+        elif np.size(np.array(oversaturation))==3:
+            oversat_x = oversaturation[0]
+            oversat_y = oversaturation[1]
+            oversat_z = oversaturation[2]
+
+
         if self.type.upper() =="SPHERICAL":
-            x,y,z,n = latlon_to_cartesian(lat=self.x_lim, long=self.y_lim, depth=self.z_lim, e2=0, a=self.a)
-            self.nx = np.abs(oversaturation * math.ceil((x[1] - x[0]) * self.epw / self.min_wavelength))
-            self.ny = np.abs(oversaturation * math.ceil((y[1] - y[0]) * self.epw / self.min_wavelength))
-            self.nz = np.abs(oversaturation * math.ceil((z[1] - z[0]) * self.epw / self.min_wavelength))
+            x,y,z = latlon_to_cartesian(lat=self.x_lim, long=self.y_lim, depth=self.z_lim, e2=0, a=self.a)
+            self.nz = int(np.abs(oversat_z * math.ceil((x[1] - x[0]) * self.epw / self.min_wavelength)))
+            self.ny = int(np.abs(oversat_y * math.ceil((y[1] - y[0]) * self.epw / self.min_wavelength)))
+            self.nx = int(np.abs(oversat_x * math.ceil((z[1] - z[0]) * self.epw / self.min_wavelength)))
+
+            # Ensure that nx, ny, nz are odd
+            if self.nx % 2 == 0:
+                self.nx += 1
+            if self.ny % 2 == 0:
+                self.ny += 1
+            if self.nz % 2 == 0:
+                self.nz += 1
+
 
         elif self.type.upper() =="CARTESIAN":
             self.nx = oversaturation*math.ceil((self.x_lim[1] - self.x_lim[0])*self.epw /self.min_wavelength)
@@ -161,10 +240,37 @@ class Model(object):
         else:
             raise ValueError("model variable 'type' must be 'cartesian' or 'spherical'. ")
 
-        # Ensure that nx, ny, nz are odd
-        if self.nx % 2 == 0:
-            self.nx += 1
-        if self.ny % 2 == 0:
-            self.ny += 1
-        if self.nz % 2 == 0:
-            self.nz += 1
+
+
+    def _print_inparam_model_script(self, fname):
+        print("# ___________________________________________________________________________________")
+        print(f"    - {fname[:-3]}:")
+        print(f"        activated: true")
+        print(f"        class_name: StructuredGridV3D")
+        print(f"        nc_data_file: {fname}")
+        print(f"        coordinates:")
+        print(f"            horizontal: LATITUDE_LONGITUDE")
+        print(f"            vertical: DEPTH")
+        print(f"            ellipticity: FILL THIS IN - true/false")
+        print(f"            depth_below_solid_surface: FILL THIS IN - true/false")
+        print(f"            nc_variables: [lat, lon, depth]")
+        print(f"            data_rank: [1, 2, 0]")
+        print(f"            length_unit: m")
+        print(f"            angle_unit: degree")
+        print(f"            undulated_geometry: false")
+        print(f"            whole_element_inplane: false")
+        print(f"        properties:")
+        print(f"            - VP:")
+        print(f"                nc_var: vp")
+        print(f"                factor: 1")
+        print(f"                reference_kind: FILL THIS IN - ABS/REF1D/REF3D")
+        print(f"            - VS:")
+        print(f"                nc_var: vs")
+        print(f"                factor: 1")
+        print(f"                reference_kind: FILL THIS IN - ABS/REF1D/REF3D")
+        print(f"            - RHO:")
+        print(f"                nc_var: rho")
+        print(f"                factor: 1")
+        print(f"                reference_kind: FILL THIS IN - ABS/REF1D/REF3D")
+        print(f"        store_grid_only_on_leaders: true")
+        print("# ___________________________________________________________________________________")

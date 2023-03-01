@@ -1,1 +1,4 @@
 *.nc
+*DS_Store
+.idea/*
+*__pycache*

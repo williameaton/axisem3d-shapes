@@ -75,5 +75,4 @@ class Slab(Object):
         max_len = np.amax(self.lengths)
         loop = int(max_len // self.m.dx)  * self.expand_int
 
-
         return loop, loop, loop

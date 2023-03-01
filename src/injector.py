@@ -32,6 +32,13 @@ class Injector():
         # meant to be zero but I will need to conjure up a better method in that case...
         truth = vp_inj != 0
 
+        # If random magnitude is not 0:
+        if obj.random_mag != 0:
+            test = np.random.uniform(-obj.random_mag, obj.random_mag, np.shape(vp_inj) )
+            vp_inj += test
+            vs_inj += test
+            rho_inj += test
+
         # inject:
         if overwrite == True:
             self.m.bm_vp[lb[0]:ub[0], lb[1]:ub[1], lb[2]:ub[2]][truth]  = vp_inj[truth]
